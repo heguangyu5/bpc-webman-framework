@@ -49,7 +49,11 @@ class Context
     protected static function getObject(): StdClass
     {
         if (!static::$objectStorage) {
+            if (defined('__BPC__')) {
+                static::$objectStorage = new SplObjectStorage();
+            } else {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
+            }
             static::$object = new StdClass;
         }
         $key = static::getKey();
@@ -64,6 +68,8 @@ class Context
      */
     protected static function getKey()
     {
+        if (defined('__BPC__')) {
+        } else {
         switch (Worker::$eventLoopClass) {
             case Revolt::class:
                 return Fiber::getCurrent();
@@ -71,6 +77,7 @@ class Context
                 return \Swoole\Coroutine::getContext();
             case Swow::class:
                 return Coroutine::getCurrent();
+        }
         }
         return static::$object;
     }

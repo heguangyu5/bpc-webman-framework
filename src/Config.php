@@ -185,6 +185,55 @@ class Config
     public static function loadFromDir(string $configPath, array $excludeFile = []): array
     {
         $allConfig = [];
+        if (defined('__BPC__')) {
+            $configList = array(
+                'container.php',
+                'log.php',
+                'session.php',
+                'view.php',
+                'bootstrap.php',
+                'middleware.php',
+                'dependence.php',
+                'database.php',
+                'route.php',
+                'static.php',
+                'server.php',
+                'redis.php',
+                'exception.php',
+                'app.php',
+                'autoload.php',
+                'translation.php'
+            );
+            foreach ($configList as $idx => $file) {
+                $configList[$idx] = $configPath . '/' . $file;
+            }
+            foreach ($configList as $file) {
+                if (in_array(basename($file, '.php'), $excludeFile)) {
+                    continue;
+                }
+                $appConfigFile = dirname($file) . '/app.php';
+                if (!include_file_exists($appConfigFile)) {
+                    continue;
+                }
+                $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr($file, 0, -4));
+                $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
+                if (count($explode) >= 2) {
+                    $appConfig = include $appConfigFile;
+                    if (empty($appConfig['enable'])) {
+                        continue;
+                    }
+                }
+                $config = include_silent($file);
+                if ($config !== false) {
+                    foreach ($explode as $section) {
+                        $tmp = [];
+                        $tmp[$section] = $config;
+                        $config = $tmp;
+                    }
+                    $allConfig = array_replace_recursive($allConfig, $config);
+                }
+            }
+        } else {
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
@@ -211,6 +260,7 @@ class Config
                 $config = $tmp;
             }
             $allConfig = array_replace_recursive($allConfig, $config);
+        }
         }
         return $allConfig;
     }

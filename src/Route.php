@@ -401,6 +401,10 @@ class Route
             Route::setCollector($route);
             foreach ($paths as $configPath) {
                 $routeConfigFile = $configPath . '/route.php';
+                if (defined('__BPC__')) {
+                    include_once_silent($routeConfigFile);
+                    // TODO: plugin config
+                } else {
                 if (is_file($routeConfigFile)) {
                     require_once $routeConfigFile;
                 }
@@ -422,6 +426,7 @@ class Route
                         continue;
                     }
                     require_once $file;
+                }
                 }
             }
         });

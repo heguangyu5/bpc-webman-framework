@@ -26,12 +26,15 @@ class App
         ini_set('display_errors', 'on');
         error_reporting(E_ALL);
 
+        if (defined('__BPC__')) {
+        } else {
         if (class_exists(Dotenv::class) && file_exists(run_path('.env'))) {
             if (method_exists(Dotenv::class, 'createUnsafeImmutable')) {
                 Dotenv::createUnsafeImmutable(run_path())->load();
             } else {
                 Dotenv::createMutable(run_path())->load();
             }
+        }
         }
 
         static::loadAllConfig(['route', 'container']);
@@ -74,7 +77,7 @@ class App
         Worker::$pidFile = $config['pid_file'];
         Worker::$stdoutFile = $config['stdout_file'];
         Worker::$logFile = $config['log_file'];
-        Worker::$eventLoopClass = $config['event_loop'] ?? '';
+        //Worker::$eventLoopClass = $config['event_loop'] ?? '';
         TcpConnection::$defaultMaxPackageSize = $config['max_package_size'] ?? 10 * 1024 * 1024;
         if (property_exists(Worker::class, 'statusFile')) {
             Worker::$statusFile = $config['status_file'] ?? '';
@@ -140,11 +143,18 @@ class App
     {
         Config::load(config_path(), $excludes);
         $directory = base_path() . '/plugin';
+        if (defined('__BPC__')) {
+            $pluginWithConfigList = array();
+            foreach ($pluginWithConfigList as $name) {
+                Config::load("$directory/$name/config", $excludes, "plugin.$name");
+            }
+        } else {
         foreach (Util::scanDir($directory, false) as $name) {
             $dir = "$directory/$name/config";
             if (is_dir($dir)) {
                 Config::load($dir, $excludes, "plugin.$name");
             }
+        }
         }
     }
 
