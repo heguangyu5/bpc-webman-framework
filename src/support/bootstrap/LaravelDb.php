@@ -56,10 +56,10 @@ class LaravelDb implements Bootstrap
 
         $capsule = new Capsule(IlluminateContainer::getInstance());
 
-        $capsule->getDatabaseManager()->extend('mongodb', function ($config, $name) {
-            $config['name'] = $name;
-            return class_exists(LaravelMongodbConnection::class) ? new LaravelMongodbConnection($config) : new JenssegersMongodbConnection($config);
-        });
+//        $capsule->getDatabaseManager()->extend('mongodb', function ($config, $name) {
+//            $config['name'] = $name;
+//            return class_exists(LaravelMongodbConnection::class) ? new LaravelMongodbConnection($config) : new JenssegersMongodbConnection($config);
+//        });
 
         $default = $config['default'] ?? false;
         if ($default) {
@@ -113,11 +113,11 @@ class LaravelDb implements Bootstrap
                 $page = (int)($request->input($pageName, 1));
                 return $page > 0 ? $page : 1;
             });
-            if (class_exists(CursorPaginator::class)) {
-                CursorPaginator::currentCursorResolver(function ($cursorName = 'cursor') {
-                    return Cursor::fromEncoded(request()->input($cursorName));
-                });
-            }
+//            if (class_exists(CursorPaginator::class)) {
+//                CursorPaginator::currentCursorResolver(function ($cursorName = 'cursor') {
+//                    return Cursor::fromEncoded(request()->input($cursorName));
+//                });
+//            }
         }
     }
 }

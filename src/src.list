@@ -22,9 +22,12 @@ Session/FileSessionHandler.php
 support/App.php
 support/Container.php
 support/Context.php
+support/Db.php
 support/Log.php
+support/Model.php
 support/Plugin.php
 support/View.php
+support/bootstrap/LaravelDb.php
 support/bootstrap/Session.php
 support/exception/BusinessException.php
 support/exception/Handler.php
