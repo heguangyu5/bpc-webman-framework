@@ -632,12 +632,12 @@ class App
 
         static::collectCallbacks($key, [static::getCallback($plugin, '__static__', function ($request) use ($file, $plugin) {
             if (defined('__BPC__')) {
-                $content = resource_get_contents($file);
+                $content = resource_get_contents($file, $mimeType);
                 if ($content === false) {
                     $callback = static::getFallback($plugin);
                     return $callback($request);
                 }
-                return new Response(200, [], $content);
+                return new Response(200, ['Content-Type' => $mimeType], $content);
             } else {
             clearstatcache(true, $file);
             if (!is_file($file)) {

@@ -144,17 +144,20 @@ class App
         Config::load(config_path(), $excludes);
         $directory = base_path() . '/plugin';
         if (defined('__BPC__')) {
-            $pluginWithConfigList = array();
-            foreach ($pluginWithConfigList as $name) {
-                Config::load("$directory/$name/config", $excludes, "plugin.$name");
+            $pluginWithConfigList = getenv('WEBMAN_PLUGINS_WITH_CONFIG');
+            if ($pluginWithConfigList) {
+                $pluginWithConfigList = explode(',', $pluginWithConfigList);
+                foreach ($pluginWithConfigList as $name) {
+                    Config::load("$directory/$name/config", $excludes, "plugin.$name");
+                }
             }
         } else {
-        foreach (Util::scanDir($directory, false) as $name) {
-            $dir = "$directory/$name/config";
-            if (is_dir($dir)) {
-                Config::load($dir, $excludes, "plugin.$name");
+            foreach (Util::scanDir($directory, false) as $name) {
+                $dir = "$directory/$name/config";
+                if (is_dir($dir)) {
+                    Config::load($dir, $excludes, "plugin.$name");
+                }
             }
-        }
         }
     }
 
