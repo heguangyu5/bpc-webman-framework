@@ -606,7 +606,10 @@ class App
         $file = "$publicDir/$path";
         if (defined('__BPC__')) {
             if (!include_file_exists($file)) {
-                return false;
+                $file = BASE_PATH_REAL . substr($file, strpos($file, '/'));
+                if (!is_file($file)) {
+                    return false;
+                }
             }
         } else {
             if (!is_file($file)) {
@@ -632,20 +635,19 @@ class App
 
         static::collectCallbacks($key, [static::getCallback($plugin, '__static__', function ($request) use ($file, $plugin) {
             if (defined('__BPC__')) {
-                $content = resource_get_contents($file, $mimeType);
-                if ($content === false) {
-                    $callback = static::getFallback($plugin);
-                    return $callback($request);
+                if ($file[0] != '/') {
+                    $content = resource_get_contents($file, $mimeType);
+                    if ($content !== false) {
+                        return new Response(200, ['Content-Type' => $mimeType], $content);
+                    }
                 }
-                return new Response(200, ['Content-Type' => $mimeType], $content);
-            } else {
+            }
             clearstatcache(true, $file);
             if (!is_file($file)) {
                 $callback = static::getFallback($plugin);
                 return $callback($request);
             }
             return (new Response())->file($file);
-            }
         }, null, false), '', '', '', '', null]);
         [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
         static::send($connection, $callback($request), $request);
